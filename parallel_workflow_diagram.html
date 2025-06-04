@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Process Flowchart</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .flowchart-container {
+      background: white;
+      border: 3px solid #333;
+      border-radius: 10px;
+      padding: 30px 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 350px;
+    }
+    .node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin: 8px 0;
+      position: relative;
+      gap: 8px;
+    }
+    .oval {
+      background-color: #e8e3f0;
+      border: 2px solid #b8a9d9;
+      border-radius: 30px;
+      padding: 8px 20px;
+      min-width: 80px;
+      text-align: center;
+    }
+    .rectangle {
+      background-color: #e8e3f0;
+      border: 2px solid #b8a9d9;
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-width: 120px;
+      text-align: center;
+    }
+    .parallel-container {
+      display: flex;
+      gap: 15px;
+      margin: 8px 0;
+      align-items: center;
+      position: relative;
+      width: 100%;
+    }
+    .parallel-node {
+      background-color: #ffeaea;
+      border: 2px solid #ffb3b3;
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: #333;
+      min-width: 80px;
+    }
+    .arrow {
+      width: 2px;
+      height: 20px;
+      background-color: #333;
+      position: relative;
+      margin: 2px 0;
+    }
+    .arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: -4px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 8px solid #333;
+    }
+    .emoji {
+      font-size: 16px;
+    }
+    .node:hover {
+      transform: translateY(-2px);
+      transition: transform 0.2s ease;
+    }
+    .oval:hover, .rectangle:hover {
+      background-color: #ddd4e8;
+      cursor: pointer;
+    }
+    .parallel-node:hover {
+      background-color: #ffd9d9;
+      cursor: pointer;
+      transform: translateY(-2px);
+      transition: all 0.2s ease;
+    }
+    @keyframes highlight {
+      0% { background-color: inherit; }
+      50% { background-color: #ffeb3b; }
+      100% { background-color: inherit; }
+    }
+    .highlight {
+      animation: highlight 1s ease-in-out;
+    }
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .btn {
+      background-color: #6c5ce7;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      margin: 0 5px;
+      transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+      background-color: #5a4fcf;
+    }
+    /* For SVG arrows */
+    .arrow-svg {
+      position: relative;
+      width: 350px;
+      height: 60px;
+      margin-bottom: -10px;
+    }
+  </style>
+</head>
+<body>
+<div class="flowchart-container">
+  <!-- Start Node -->
+  <div class="node">
+    <div class="oval" id="start">__start__</div>
+  </div>
+  <div class="arrow"></div>
+  <!-- Input Node -->
+  <div class="node" style="z-index:2;">
+    <div class="rectangle" id="input">
+      <span class="emoji">🧑</span> Input
+    </div>
+  </div>
+  <!-- SVG Arrows from Input to LLM 1 and LLM 3 -->
+  <div class="arrow-svg">
+    <svg width="350" height="60">
+      <!-- Arrow to LLM 1 (left) -->
+      <line x1="175" y1="10" x2="80" y2="45" stroke="#333" stroke-width="2"/>
+      <polygon points="80,45 86,41 84,49" fill="#333"/>
+      <!-- Arrow to LLM 2 (center) -->
+      <line x1="175" y1="10" x2="175" y2="45" stroke="#333" stroke-width="2"/>
+      <polygon points="175,45 171,39 179,39" fill="#333"/>
+      <!-- Arrow to LLM 3 (right) -->
+      <line x1="175" y1="10" x2="270" y2="45" stroke="#333" stroke-width="2"/>
+      <polygon points="270,45 264,41 266,49" fill="#333"/>
+    </svg>
+  </div>
+
+  <!-- Parallel LLM Calls Nodes -->
+  <div class="parallel-container" style="margin-top:0;">
+    <div class="parallel-node" id="llm1">
+      <span class="emoji">🚀</span><br>LLM Call 1
+    </div>
+    <div class="parallel-node" id="llm2">
+      <span class="emoji">🚀</span><br>LLM Call 2
+    </div>
+    <div class="parallel-node" id="llm3">
+      <span class="emoji">🚀</span><br>LLM Call 3
+    </div>
+  </div>
+  <!-- Fan in from all LLMs to Aggregator -->
+  <div class="fan-in">
+    <div class="fan-in-line left"></div>
+    <div class="fan-in-line center"></div>
+    <div class="fan-in-line right"></div>
+  </div>
+  <!-- SVG Arrows from all LLMs to Aggregator -->
+  <div class="arrow-svg">
+    <svg width="350" height="60">
+      <!-- Arrow from LLM 1 (left) -->
+      <line x1="80" y1="10" x2="175" y2="50" stroke="#333" stroke-width="2"/>
+      <polygon points="175,50 170,44 180,44" fill="#333"/>
+      <!-- Arrow from LLM 2 (center) -->
+      <line x1="175" y1="10" x2="175" y2="50" stroke="#333" stroke-width="2"/>
+      <polygon points="175,50 171,44 179,44" fill="#333"/>
+      <!-- Arrow from LLM 3 (right) -->
+      <line x1="270" y1="10" x2="175" y2="50" stroke="#333" stroke-width="2"/>
+      <polygon points="175,50 170,44 180,44" fill="#333"/>
+    </svg>
+  </div>
+  <!-- Aggregator Node -->
+  <div class="node">
+    <div class="rectangle" id="aggregator">
+      <span class="emoji">🔗</span> Aggregator
+    </div>
+  </div>
+  <div class="arrow"></div>
+  <!-- Output Node -->
+  <div class="node">
+    <div class="rectangle" id="output">
+      <span class="emoji">🧑</span> Output
+    </div>
+  </div>
+  <div class="arrow"></div>
+  <!-- End Node -->
+  <div class="node">
+    <div class="oval" id="end">__end__</div>
+  </div>
+  <!-- Interactive Controls -->
+  <div class="controls">
+    <button class="btn" onclick="animateFlow()">Animate Flow</button>
+    <button class="btn" onclick="resetAnimation()">Reset</button>
+  </div>
+</div>
+<script>
+  let isAnimating = false;
+  function highlightNode(nodeId, delay = 0) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const node = document.getElementById(nodeId);
+        if (node) {
+          node.classList.add('highlight');
+          setTimeout(() => {
+            node.classList.remove('highlight');
+            resolve();
+          }, 1000);
+        } else {
+          resolve();
+        }
+      }, delay);
+    });
+  }
+  async function animateFlow() {
+    if (isAnimating) return;
+    isAnimating = true;
+    await highlightNode('start', 0);
+    await highlightNode('input', 500);
+    // Animate all LLMs in parallel
+    await Promise.all([
+      highlightNode('llm1', 500),
+      highlightNode('llm2', 500),
+      highlightNode('llm3', 500)
+    ]);
+    await highlightNode('aggregator', 500);
+    await highlightNode('output', 500);
+    await highlightNode('end', 500);
+    isAnimating = false;
+  }
+  function resetAnimation() {
+    document.querySelectorAll('.highlight').forEach(node => {
+      node.classList.remove('highlight');
+    });
+    isAnimating = false;
+  }
+  document.querySelectorAll('.oval, .rectangle, .parallel-node').forEach(node => {
+    node.addEventListener('click', function() {
+      if (!isAnimating) {
+        this.classList.add('highlight');
+        setTimeout(() => {
+          this.classList.remove('highlight');
+        }, 1000);
+      }
+    });
+  });
+</script>
+</body>
+</html>
