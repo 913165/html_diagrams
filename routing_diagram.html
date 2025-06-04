@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM Process Flowchart with Feedback Routing</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .flowchart-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 3px solid #333;
+      border-radius: 20px;
+      padding: 40px 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 450px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .node {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin: 8px 0;
+      position: relative;
+      gap: 8px;
+    }
+    .oval {
+      background: linear-gradient(145deg, #e8e3f0, #d4c5e8);
+      border: 2px solid #b8a9d9;
+      border-radius: 35px;
+      padding: 10px 25px;
+      min-width: 100px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .rectangle {
+      background: linear-gradient(145deg, #e8e3f0, #d4c5e8);
+      border: 2px solid #b8a9d9;
+      border-radius: 12px;
+      padding: 12px 16px;
+      min-width: 120px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .diamond {
+      background: linear-gradient(145deg, #fff3cd, #ffeaa7);
+      border: 2px solid #f39c12;
+      transform: rotate(45deg);
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .diamond-content {
+      transform: rotate(-45deg);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .parallel-container {
+      display: flex;
+      gap: 15px;
+      margin: 8px 0;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      justify-content: center;
+    }
+    .parallel-node {
+      background: linear-gradient(145deg, #ffeaea, #ffcccb);
+      border: 2px solid #ff6b6b;
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      min-width: 90px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .feedback-container {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+      align-items: center;
+      position: relative;
+      width: 100%;
+      justify-content: center;
+    }
+    .feedback-node {
+      border-radius: 12px;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      min-width: 70px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .positive {
+      background: linear-gradient(145deg, #d4edda, #c3e6cb);
+      border: 2px solid #28a745;
+    }
+    .negative {
+      background: linear-gradient(145deg, #f8d7da, #f5c6cb);
+      border: 2px solid #dc3545;
+    }
+    .neutral {
+      background: linear-gradient(145deg, #e2e3e5, #d6d8db);
+      border: 2px solid #6c757d;
+    }
+    .arrow {
+      width: 3px;
+      height: 20px;
+      background: linear-gradient(to bottom, #333, #666);
+      position: relative;
+      margin: 2px 0;
+      border-radius: 2px;
+    }
+    .arrow::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: -5px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 10px solid #333;
+    }
+    .emoji {
+      font-size: 16px;
+      margin-right: 4px;
+    }
+    .node:hover {
+      transform: translateY(-3px);
+      transition: all 0.3s ease;
+    }
+    .oval:hover, .rectangle:hover {
+      background: linear-gradient(145deg, #ddd4e8, #c9b6e0);
+      cursor: pointer;
+      transform: scale(1.05);
+      transition: all 0.3s ease;
+    }
+    .parallel-node:hover {
+      background: linear-gradient(145deg, #ffd9d9, #ffb3b3);
+      cursor: pointer;
+      transform: translateY(-3px) scale(1.05);
+      transition: all 0.3s ease;
+    }
+    .feedback-node:hover {
+      cursor: pointer;
+      transform: translateY(-2px) scale(1.05);
+      transition: all 0.3s ease;
+    }
+    @keyframes highlight {
+      0% { 
+        background: inherit; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+      50% { 
+        background: linear-gradient(145deg, #ffeb3b, #fdd835) !important;
+        box-shadow: 0 8px 20px rgba(255, 235, 59, 0.5);
+        transform: scale(1.1);
+      }
+      100% { 
+        background: inherit;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      }
+    }
+    .highlight {
+      animation: highlight 1.2s ease-in-out;
+    }
+    .controls {
+      margin-top: 25px;
+      text-align: center;
+    }
+    .btn {
+      background: linear-gradient(145deg, #6c5ce7, #5a4fcf);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .btn:hover {
+      background: linear-gradient(145deg, #5a4fcf, #4834d4);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    .arrow-svg {
+      position: relative;
+      width: 450px;
+      height: 80px;
+      margin: -5px 0;
+    }
+    .section-label {
+      font-size: 10px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 15px 0 5px 0;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<div class="flowchart-container">
+  <!-- Start Node -->
+  <div class="node">
+    <div class="oval" id="start">🚀 __start__</div>
+  </div>
+  <div class="arrow"></div>
+  
+  <!-- Input Node -->
+  <div class="node">
+    <div class="rectangle" id="input">
+      <span class="emoji">🧑</span> User Input
+    </div>
+  </div>
+  
+  <div class="arrow"></div>
+  
+  <!-- Initial Response Node -->
+  <div class="node">
+    <div class="rectangle" id="initial-response">
+      <span class="emoji">📤</span> Initial Response
+    </div>
+  </div>
+  <div class="arrow"></div>
+  
+  <!-- User Feedback Node -->
+  <div class="node">
+    <div class="rectangle" id="user-feedback">
+      <span class="emoji">💬</span> User Feedback
+    </div>
+  </div>
+  <div class="arrow"></div>
+  
+  <!-- Feedback Analysis Decision Diamond -->
+  <div class="node">
+    <div class="diamond" id="feedback-router">
+      <div class="diamond-content">
+        <span class="emoji">🔀</span><br>Feedback<br>Router
+      </div>
+    </div>
+  </div>
+  
+  <!-- SVG Arrows from Router to LLM Calls -->
+  <div class="arrow-svg">
+    <svg width="450" height="100">
+      <!-- Arrow to Positive LLM (left) -->
+      <line x1="225" y1="20" x2="120" y2="80" stroke="#28a745" stroke-width="3"/>
+      <polygon points="120,80 128,76 126,86" fill="#28a745"/>
+      <text x="100" y="55" font-size="10" fill="#28a745" font-weight="bold">If Positive</text>
+      <!-- Arrow to Neutral LLM (center) -->
+      <line x1="225" y1="20" x2="225" y2="80" stroke="#6c757d" stroke-width="3"/>
+      <polygon points="225,80 220,74 230,74" fill="#6c757d"/>
+      <text x="230" y="55" font-size="10" fill="#6c757d" font-weight="bold">If Neutral</text>
+      <!-- Arrow to Negative LLM (right) -->
+      <line x1="225" y1="20" x2="330" y2="80" stroke="#dc3545" stroke-width="3"/>
+      <polygon points="330,80 322,76 324,86" fill="#dc3545"/>
+      <text x="300" y="55" font-size="10" fill="#dc3545" font-weight="bold">If Negative</text>
+    </svg>
+  </div>
+
+  <div class="section-label">Sentiment Analysis LLM Calls</div>
+  <!-- Conditional LLM Calls Based on Feedback -->
+  <div class="feedback-container">
+    <div class="feedback-node positive" id="positive-llm">
+      <span class="emoji">🤖</span><br>Positive<br>Analysis LLM
+    </div>
+    <div class="feedback-node neutral" id="neutral-llm">
+      <span class="emoji">🤖</span><br>Neutral<br>Analysis LLM
+    </div>
+    <div class="feedback-node negative" id="negative-llm">
+      <span class="emoji">🤖</span><br>Negative<br>Analysis LLM
+    </div>
+  </div>
+  
+  <!-- SVG Arrows from LLM Analysis to Final Output -->
+  <div class="arrow-svg">
+    <svg width="450" height="80">
+      <!-- Arrow from Positive LLM -->
+      <line x1="120" y1="15" x2="225" y2="60" stroke="#28a745" stroke-width="2"/>
+      <polygon points="225,60 218,56 228,56" fill="#28a745"/>
+      <!-- Arrow from Neutral LLM -->
+      <line x1="225" y1="15" x2="225" y2="60" stroke="#6c757d" stroke-width="2"/>
+      <polygon points="225,60 220,54 230,54" fill="#6c757d"/>
+      <!-- Arrow from Negative LLM -->
+      <line x1="330" y1="15" x2="225" y2="60" stroke="#dc3545" stroke-width="2"/>
+      <polygon points="225,60 218,56 228,56" fill="#dc3545"/>
+    </svg>
+  </div>
+  
+  <!-- Sentiment Classification Result -->
+  <div class="node">
+    <div class="rectangle" id="sentiment-result">
+      <span class="emoji">🎯</span> Sentiment Classification
+    </div>
+  </div>
+  <div class="arrow"></div>
+  
+  <!-- End Node -->
+  <div class="node">
+    <div class="oval" id="end">🏁 __end__</div>
+  </div>
+  
+  <!-- Interactive Controls -->
+  <div class="controls">
+    <button class="btn" onclick="animateFlow('positive')">▶️ Positive Flow</button>
+    <button class="btn" onclick="animateFlow('negative')">▶️ Negative Flow</button>
+    <button class="btn" onclick="animateFlow('neutral')">▶️ Neutral Flow</button>
+    <button class="btn" onclick="resetAnimation()">🔄 Reset</button>
+  </div>
+</div>
+
+<script>
+  let isAnimating = false;
+  
+  function highlightNode(nodeId, delay = 0) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const node = document.getElementById(nodeId);
+        if (node) {
+          node.classList.add('highlight');
+          setTimeout(() => {
+            node.classList.remove('highlight');
+            resolve();
+          }, 1200);
+        } else {
+          resolve();
+        }
+      }, delay);
+    });
+  }
+  
+  async function animateFlow(feedbackType = 'positive') {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    // Initial flow
+    await highlightNode('start', 0);
+    await highlightNode('input', 600);
+    await highlightNode('initial-response', 600);
+    await highlightNode('user-feedback', 600);
+    await highlightNode('feedback-router', 600);
+    
+    // Route to specific LLM based on feedback type
+    switch(feedbackType) {
+      case 'positive':
+        await highlightNode('positive-llm', 600);
+        break;
+      case 'negative':
+        await highlightNode('negative-llm', 600);
+        break;
+      case 'neutral':
+        await highlightNode('neutral-llm', 600);
+        break;
+    }
+    
+    await highlightNode('sentiment-result', 600);
+    await highlightNode('end', 600);
+    
+    isAnimating = false;
+  }
+  
+  function resetAnimation() {
+    document.querySelectorAll('.highlight').forEach(node => {
+      node.classList.remove('highlight');
+    });
+    isAnimating = false;
+  }
+  
+  // Click to highlight individual nodes
+  document.querySelectorAll('.oval, .rectangle, .parallel-node, .feedback-node, .diamond').forEach(node => {
+    node.addEventListener('click', function() {
+      if (!isAnimating) {
+        this.classList.add('highlight');
+        setTimeout(() => {
+          this.classList.remove('highlight');
+        }, 1200);
+      }
+    });
+  });
+</script>
+</body>
+</html>
