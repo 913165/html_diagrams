@@ -1,0 +1,12 @@
+I need example of Orchestrator-workers pattern patter
+it should use llm openai
+
+intial task is complex task
+Orchestrator-workers divide tasks into three different independent tasks
+assigned to three different parallel workers node which runs parallelly.
+
+then last node synthezier will collect result and syntezie result from wokrers
+
+and give final output
+
+write a python program using langgraph for above
