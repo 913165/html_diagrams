@@ -1,0 +1,20 @@
+Hello everyone
+
+In this video we will talk about another ai workflow pattern
+e.g routing pattern.
+
+.If parallel workflows were about doing multiple things at once,
+ routing is about making smart decisions about who should handle what task
+ 
+ What is the Routing Pattern?
+
+Think of routing like a smart receptionist at a busy office building. When visitors arrive, the receptionist doesn't send everyone to the same person. Instead, they ask a few questions and then direct each visitor to the right specialist - legal questions go to the legal department, technical issues go to IT, and financial matters go to accounting.
+
+Routing classifies user input and directs it to specialized agents (like separate agents for Gmail, Calendar, or Slack), minimizing the scope of responsibility for any single LLM.
+
+The Core Components
+
+The Router (The Decision Maker)
+1. The Router (The Decision Maker)
+2. Specialized Agents (The Experts)
+3. Classification Logic (The Rules)
