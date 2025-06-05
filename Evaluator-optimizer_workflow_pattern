@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-<canvas id="llmDiagram" width="800" height="400"></canvas>
+<canvas id="llmDiagram" width="800" height="500"></canvas>
 
 <script>
     const canvas = document.getElementById('llmDiagram');
@@ -44,7 +44,13 @@
         ctx.font = "16px Arial";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(text, x + width / 2, y + height / 2);
+        // Support multi-line text
+        const lines = text.split('\n');
+        const lineHeight = 18;
+        const startY = y + height / 2 - (lines.length - 1) * lineHeight / 2;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, x + width / 2, startY + i * lineHeight);
+        });
     }
 
     function drawArrow(fromX, fromY, toX, toY, text = "", lineWidth = 2) {
@@ -68,28 +74,71 @@
         ctx.restore();
 
         if (text) {
+            ctx.save();
             ctx.fillStyle = "#555";
             ctx.font = "14px Arial";
-            ctx.fillText(text, (fromX + toX) / 2, (fromY + toY) / 2 - 10);
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            // Place text to the right of the arrow for horizontal, below for vertical
+            if (fromX === toX) {
+                ctx.fillText(text, toX + 15, (fromY + toY) / 2);
+            } else if (fromY === toY) {
+                ctx.fillText(text, (fromX + toX) / 2, toY - 15);
+            } else {
+                ctx.fillText(text, (fromX + toX) / 2 + 10, (fromY + toY) / 2);
+            }
+            ctx.restore();
         }
     }
 
-    // Draw elements
-    drawRoundedRect(50, 160, 60, 40, 10, "#fdd", "In");
-    drawArrow(110, 180, 200, 180);
-    drawRoundedRect(200, 140, 160, 80, 10, "#dfffe0", "LLM Call\nGenerator");
+    // Center X for all boxes
+    const centerX = 370;
+    // Y positions for each box
+    const inY = 30;
+    const genY = 100;
+    const evalY = 220;
+    const outY = 370;
 
-    drawArrow(360, 160, 540, 160);
-    drawRoundedRect(540, 140, 160, 80, 10, "#dfffe0", "LLM Call\nEvaluator");
-    drawArrow(700, 160, 770, 160);
-    drawRoundedRect(770, 140, 60, 40, 10, "#fdd", "Out");
+    // Draw elements (top to bottom)
+    drawRoundedRect(centerX, inY, 60, 40, 10, "#fdd", "In");
+    drawArrow(centerX + 30, inY + 40, centerX + 30, genY, "", 3); // down
 
-    // Feedback loop
-    drawArrow(540, 220, 355, 220, "Rejected + Feedback");
-    //drawArrow(280, 220, 280, 180);
-    // drawArrow(620, 180, 620, 220);
+    drawRoundedRect(centerX - 45, genY, 150, 60, 10, "#dfffe0", "LLM Call\nGenerator");
+    drawArrow(centerX + 30, genY + 60, centerX + 30, evalY, "", 3); // down
+
+    drawRoundedRect(centerX - 45, evalY, 160, 60, 10, "#dfffe0", "LLM Call\nEvaluator");
+    drawArrow(centerX + 30, evalY + 60, centerX + 30, outY, "", 3); // down
+
+    drawRoundedRect(centerX, outY, 60, 40, 10, "#fdd", "Out");
+
+    // Feedback loop (from Evaluator to Generator, right side)
+    // Vertical down from Evaluator
+    drawArrow(centerX + 70, evalY + 1, centerX + 70, genY + 60, "Rejected + Feedback", 3);
+    ctx.fillText("Solution", centerX - 15, (evalY + 70 + outY) / 3.4);
+    // Horizontal lines for feedback loop
+    ctx.save();
+    ctx.strokeStyle = "#555";
+    ctx.lineWidth = 2;
+    // From Evaluator right to feedback loop
+    ctx.beginPath();
+    ctx.moveTo(centerX + 30 + 80, evalY + 30);
+    ctx.lineTo(centerX + 115, evalY + 30);
+    ctx.stroke();
+    // From feedback loop left to Generator
+    ctx.beginPath();
+    ctx.moveTo(centerX + 115, genY + 30);
+    ctx.lineTo(centerX + 30 + 80, genY + 30);
+    ctx.stroke();
+    ctx.restore();
+
+    // Label for solution (right of vertical arrow from Evaluator to Out)
+    ctx.save();
     ctx.fillStyle = "#333";
-    ctx.fillText("Solution", 450, 120);
+    ctx.font = "14px Arial";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+
+    ctx.restore();
 </script>
 </body>
 </html>
